@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>אליאס - כרטיסיות דיגיטליות</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;600;800;900&family=Secular+One&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0f0f1a;
+  --card-front:#1a1a2e;
+  --accent1:#ff6b6b;
+  --accent2:#feca57;
+  --accent3:#48dbfb;
+  --accent4:#ff9ff3;
+  --accent5:#54a0ff;
+  --accent6:#5f27cd;
+  --text:#f5f5f5;
+  --text-dim:#8888aa;
+}
+body{
+  font-family:'Rubik',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+.app{
+  max-width:800px;
+  margin:0 auto;
+  padding:20px;
+  text-align:center;
+}
+h1{
+  font-family:'Secular One',sans-serif;
+  font-size:2.8rem;
+  background:linear-gradient(135deg,var(--accent1),var(--accent2),var(--accent3));
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  margin-bottom:6px;
+  letter-spacing:1px;
+}
+.subtitle{
+  color:var(--text-dim);
+  font-size:.95rem;
+  margin-bottom:24px;
+}
+.controls{
+  display:flex;
+  gap:10px;
+  justify-content:center;
+  flex-wrap:wrap;
+  margin-bottom:24px;
+}
+.btn{
+  font-family:'Rubik',sans-serif;
+  font-weight:600;
+  font-size:1rem;
+  border:none;
+  border-radius:14px;
+  padding:12px 28px;
+  cursor:pointer;
+  transition:all .2s;
+  position:relative;
+  overflow:hidden;
+}
+.btn:active{transform:scale(.95)}
+.btn-primary{
+  background:linear-gradient(135deg,var(--accent1),var(--accent4));
+  color:#fff;
+  box-shadow:0 4px 20px rgba(255,107,107,.3);
+}
+.btn-primary:hover{box-shadow:0 6px 30px rgba(255,107,107,.5);transform:translateY(-2px)}
+.btn-secondary{
+  background:rgba(255,255,255,.08);
+  color:var(--text);
+  border:1px solid rgba(255,255,255,.12);
+}
+.btn-secondary:hover{background:rgba(255,255,255,.14);transform:translateY(-2px)}
+.btn-skip{
+  background:rgba(255,255,255,.06);
+  color:var(--text-dim);
+  border:1px solid rgba(255,255,255,.08);
+}
+.btn-skip:hover{background:rgba(255,255,255,.1)}
+
+.card-container{
+  perspective:1000px;
+  width:340px;
+  height:220px;
+  margin:0 auto 28px;
+}
+.card{
+  width:100%;
+  height:100%;
+  position:relative;
+  transform-style:preserve-3d;
+  transition:transform .6s cubic-bezier(.4,.0,.2,1);
+  cursor:pointer;
+}
+.card.flipped{transform:rotateY(180deg)}
+.card-face{
+  position:absolute;
+  width:100%;
+  height:100%;
+  backface-visibility:hidden;
+  border-radius:22px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+}
+.card-back{
+  background:linear-gradient(145deg,#1e1e3a,#16162b);
+  border:2px solid rgba(255,255,255,.06);
+  box-shadow:0 8px 40px rgba(0,0,0,.4);
+}
+.card-back-content{
+  font-family:'Secular One',sans-serif;
+  font-size:3.5rem;
+  opacity:.15;
+  letter-spacing:4px;
+}
+.card-back .tap-hint{
+  position:absolute;
+  bottom:18px;
+  font-size:.8rem;
+  color:var(--text-dim);
+  opacity:.5;
+}
+.card-front-face{
+  transform:rotateY(180deg);
+  box-shadow:0 8px 40px rgba(0,0,0,.4);
+  padding:20px;
+}
+.card-word{
+  font-family:'Secular One',sans-serif;
+  font-size:2.6rem;
+  line-height:1.2;
+  text-shadow:0 2px 10px rgba(0,0,0,.3);
+}
+.card-category{
+  font-size:.8rem;
+  margin-top:10px;
+  padding:4px 14px;
+  border-radius:20px;
+  background:rgba(0,0,0,.25);
+  opacity:.7;
+}
+.card-number{
+  position:absolute;
+  top:14px;
+  left:14px;
+  font-size:.75rem;
+  opacity:.4;
+  font-weight:600;
+}
+
+.timer-section{
+  margin-bottom:20px;
+}
+.timer-display{
+  font-family:'Secular One',sans-serif;
+  font-size:3.5rem;
+  font-variant-numeric:tabular-nums;
+  transition:color .3s;
+}
+.timer-display.warning{color:var(--accent1);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.timer-bar{
+  width:280px;
+  height:6px;
+  background:rgba(255,255,255,.08);
+  border-radius:3px;
+  margin:8px auto 0;
+  overflow:hidden;
+}
+.timer-fill{
+  height:100%;
+  border-radius:3px;
+  background:linear-gradient(90deg,var(--accent3),var(--accent5));
+  transition:width .3s linear, background .3s;
+}
+.timer-fill.warning{background:linear-gradient(90deg,var(--accent1),var(--accent2))}
+.timer-controls{
+  display:flex;
+  gap:8px;
+  justify-content:center;
+  margin-top:12px;
+}
+.timer-btn{
+  font-family:'Rubik',sans-serif;
+  font-size:.85rem;
+  font-weight:600;
+  background:rgba(255,255,255,.08);
+  color:var(--text-dim);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:10px;
+  padding:6px 16px;
+  cursor:pointer;
+  transition:all .2s;
+}
+.timer-btn:hover{background:rgba(255,255,255,.14);color:var(--text)}
+.timer-btn.active{background:var(--accent5);color:#fff;border-color:var(--accent5)}
+
+.score-section{
+  display:flex;
+  gap:16px;
+  justify-content:center;
+  margin-bottom:20px;
+  flex-wrap:wrap;
+}
+.team-score{
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:16px;
+  padding:12px 24px;
+  min-width:130px;
+  transition:all .2s;
+}
+.team-score.active-team{
+  border-color:rgba(255,255,255,.25);
+  box-shadow:0 0 20px rgba(255,255,255,.05);
+}
+.team-name{font-size:.85rem;color:var(--text-dim);margin-bottom:2px}
+.team-points{font-family:'Secular One',sans-serif;font-size:2rem}
+.team-btns{display:flex;gap:6px;justify-content:center;margin-top:6px}
+.score-btn{
+  width:28px;height:28px;
+  border-radius:8px;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.06);
+  color:var(--text);
+  font-size:1rem;
+  font-weight:700;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .15s;
+}
+.score-btn:hover{background:rgba(255,255,255,.15)}
+
+.stats{
+  display:flex;
+  gap:20px;
+  justify-content:center;
+  margin-bottom:8px;
+  font-size:.85rem;
+  color:var(--text-dim);
+}
+
+.theme-colors{
+  --c1:#ff6b6b;--c2:#feca57;--c3:#48dbfb;--c4:#ff9ff3;--c5:#54a0ff;--c6:#5f27cd;
+  --c7:#1dd1a1;--c8:#ee5a24;--c9:#f368e0;--c10:#10ac84;
+}
+</style>
+</head>
+<body class="theme-colors">
+<div class="app">
+  <h1>אליאס</h1>
+  <p class="subtitle">כרטיסיות דיגיטליות למשחק בזום</p>
+
+  <div class="score-section" id="scoreSection" style="display:none">
+    <div class="team-score active-team" id="team1box">
+      <div class="team-name">קבוצה 1</div>
+      <div class="team-points" id="score1">0</div>
+      <div class="team-btns">
+        <button class="score-btn" onclick="changeScore(1,-1)">−</button>
+        <button class="score-btn" onclick="changeScore(1,1)">+</button>
+      </div>
+    </div>
+    <div class="team-score" id="team2box">
+      <div class="team-name">קבוצה 2</div>
+      <div class="team-points" id="score2">0</div>
+      <div class="team-btns">
+        <button class="score-btn" onclick="changeScore(2,-1)">−</button>
+        <button class="score-btn" onclick="changeScore(2,1)">+</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="timer-section" id="timerSection" style="display:none">
+    <div class="timer-display" id="timerDisplay">01:00</div>
+    <div class="timer-bar"><div class="timer-fill" id="timerFill" style="width:100%"></div></div>
+    <div class="timer-controls">
+      <button class="timer-btn" onclick="setTimerDuration(30)">30ש</button>
+      <button class="timer-btn active" onclick="setTimerDuration(60)">60ש</button>
+      <button class="timer-btn" onclick="setTimerDuration(90)">90ש</button>
+      <button class="timer-btn" id="timerToggle" onclick="toggleTimer()">▶ התחל</button>
+    </div>
+  </div>
+
+  <div class="card-container" id="cardContainer">
+    <div class="card" id="card" onclick="flipCard()">
+      <div class="card-face card-back">
+        <div class="card-back-content">?</div>
+        <span class="tap-hint">לחצו לגלות</span>
+      </div>
+      <div class="card-face card-front-face" id="cardFront">
+        <span class="card-number" id="cardNum"></span>
+        <div class="card-word" id="cardWord"></div>
+        <div class="card-category" id="cardCat"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="btn btn-primary" onclick="nextCard()">כרטיסייה הבאה</button>
+    <button class="btn btn-secondary" onclick="shuffleAll()">ערבב מחדש</button>
+  </div>
+
+  <div class="stats">
+    <span>נותרו: <strong id="remaining">200</strong></span>
+    <span>הוצגו: <strong id="shown">0</strong></span>
+  </div>
+
+  <div class="controls" style="margin-top:8px">
+    <button class="btn btn-secondary" onclick="toggleTimer()">טיימר</button>
+    <button class="btn btn-secondary" onclick="toggleScores()">ניקוד</button>
+    <button class="btn btn-skip" onclick="resetGame()">התחל מחדש</button>
+  </div>
+</div>
+
+<script>
+const allWords=[
+{w:"אסטרונאוט",c:"אנשים"},{w:"שוטר",c:"אנשים"},{w:"פיראט",c:"אנשים"},{w:"נינג'ה",c:"אנשים"},{w:"מכשפה",c:"אנשים"},{w:"גיבור-על",c:"אנשים"},{w:"שף",c:"אנשים"},{w:"מציל",c:"אנשים"},{w:"בלש",c:"אנשים"},{w:"פרעה",c:"אנשים"},
+{w:"אביר",c:"אנשים"},{w:"קוסם",c:"אנשים"},{w:"רופא",c:"אנשים"},{w:"שופט",c:"אנשים"},{w:"נשיא",c:"אנשים"},{w:"פסלת",c:"אנשים"},{w:"צלם",c:"אנשים"},{w:"קברניט",c:"אנשים"},{w:"מורה פרטי",c:"אנשים"},{w:"דוור",c:"אנשים"},
+{w:"כריש",c:"חיות"},{w:"פלמינגו",c:"חיות"},{w:"זיקית",c:"חיות"},{w:"קיפוד",c:"חיות"},{w:"תמנון",c:"חיות"},{w:"דולפין",c:"חיות"},{w:"פינגווין",c:"חיות"},{w:"נמלה",c:"חיות"},{w:"עטלף",c:"חיות"},{w:"ג'ירפה",c:"חיות"},
+{w:"חמלאון",c:"חיות"},{w:"סוס ים",c:"חיות"},{w:"נחש",c:"חיות"},{w:"ציפור דרור",c:"חיות"},{w:"תוכי",c:"חיות"},{w:"עקרב",c:"חיות"},{w:"פרפר",c:"חיות"},{w:"צב",c:"חיות"},{w:"ארנב",c:"חיות"},{w:"נשר",c:"חיות"},
+{w:"אי בודד",c:"מקומות"},{w:"הר געש",c:"מקומות"},{w:"מוזיאון",c:"מקומות"},{w:"אצטדיון",c:"מקומות"},{w:"בית חולים",c:"מקומות"},{w:"תחנת חלל",c:"מקומות"},{w:"מדבר",c:"מקומות"},{w:"קניון",c:"מקומות"},{w:"בית קפה",c:"מקומות"},{w:"מערה",c:"מקומות"},
+{w:"מגדלור",c:"מקומות"},{w:"גן חיות",c:"מקומות"},{w:"נמל תעופה",c:"מקומות"},{w:"כלא",c:"מקומות"},{w:"ספרייה",c:"מקומות"},{w:"פארק שעשועים",c:"מקומות"},{w:"מסעדה",c:"מקומות"},{w:"בית ספר",c:"מקומות"},{w:"חוף ים",c:"מקומות"},{w:"תיאטרון",c:"מקומות"},
+{w:"מטריה",c:"חפצים"},{w:"משקפת",c:"חפצים"},{w:"שעון חול",c:"חפצים"},{w:"מיקרוסקופ",c:"חפצים"},{w:"טלסקופ",c:"חפצים"},{w:"שלט רחוק",c:"חפצים"},{w:"אוזניות",c:"חפצים"},{w:"מפתח",c:"חפצים"},{w:"נר",c:"חפצים"},{w:"כדור בועט",c:"חפצים"},
+{w:"גלשן",c:"חפצים"},{w:"סקייטבורד",c:"חפצים"},{w:"גיטרה",c:"חפצים"},{w:"מצפן",c:"חפצים"},{w:"פנס",c:"חפצים"},{w:"מכחול",c:"חפצים"},{w:"מחברת",c:"חפצים"},{w:"ארנק",c:"חפצים"},{w:"שרשרת",c:"חפצים"},{w:"מגבת",c:"חפצים"},
+{w:"חלום",c:"מושגים"},{w:"נוסטלגיה",c:"מושגים"},{w:"קנאה",c:"מושגים"},{w:"חירות",c:"מושגים"},{w:"אומץ",c:"מושגים"},{w:"בדידות",c:"מושגים"},{w:"הרפתקה",c:"מושגים"},{w:"סקרנות",c:"מושגים"},{w:"עצלנות",c:"מושגים"},{w:"גאווה",c:"מושגים"},
+{w:"בושה",c:"מושגים"},{w:"אמונה",c:"מושגים"},{w:"שגרה",c:"מושגים"},{w:"מהפכה",c:"מושגים"},{w:"השראה",c:"מושגים"},{w:"תחרות",c:"מושגים"},{w:"נקמה",c:"מושגים"},{w:"סליחה",c:"מושגים"},{w:"שעמום",c:"מושגים"},{w:"חוצפה",c:"מושגים"},
+{w:"סושי",c:"אוכל"},{w:"פלאפל",c:"אוכל"},{w:"שוקולד",c:"אוכל"},{w:"פופקורן",c:"אוכל"},{w:"קרמבו",c:"אוכל"},{w:"פיצה",c:"אוכל"},{w:"שקשוקה",c:"אוכל"},{w:"גלידה",c:"אוכל"},{w:"סופלה",c:"אוכל"},{w:"צ'יפס",c:"אוכל"},
+{w:"המבורגר",c:"אוכל"},{w:"סלט",c:"אוכל"},{w:"בייגלה",c:"אוכל"},{w:"קרואסון",c:"אוכל"},{w:"שווארמה",c:"אוכל"},{w:"מילקשייק",c:"אוכל"},{w:"בורקס",c:"אוכל"},{w:"חומוס",c:"אוכל"},{w:"וופל",c:"אוכל"},{w:"סמוזי",c:"אוכל"},
+{w:"כדורסל",c:"ספורט"},{w:"גלישה",c:"ספורט"},{w:"קרב מגע",c:"ספורט"},{w:"שחמט",c:"ספורט"},{w:"מרתון",c:"ספורט"},{w:"באולינג",c:"ספורט"},{w:"סנפלינג",c:"ספורט"},{w:"טרמפולינה",c:"ספורט"},{w:"יוגה",c:"ספורט"},{w:"קפוארה",c:"ספורט"},
+{w:"פיינטבול",c:"ספורט"},{w:"דארטס",c:"ספורט"},{w:"פאזל",c:"ספורט"},{w:"קסמים",c:"ספורט"},{w:"ג'וגלינג",c:"ספורט"},{w:"פנטומימה",c:"ספורט"},{w:"פארקור",c:"ספורט"},{w:"ריקוד",c:"ספורט"},{w:"צלילה",c:"ספורט"},{w:"רכיבה",c:"ספורט"},
+{w:"רובוט",c:"טכנולוגיה"},{w:"לוויין",c:"טכנולוגיה"},{w:"הולוגרמה",c:"טכנולוגיה"},{w:"אלגוריתם",c:"טכנולוגיה"},{w:"וירוס",c:"טכנולוגיה"},{w:"כוח משיכה",c:"טכנולוגיה"},{w:"חור שחור",c:"טכנולוגיה"},{w:"מציאות מדומה",c:"טכנולוגיה"},{w:"דרון",c:"טכנולוגיה"},{w:"מדפסת תלת מימד",c:"טכנולוגיה"},
+{w:"בינה מלאכותית",c:"טכנולוגיה"},{w:"GPS",c:"טכנולוגיה"},{w:"וויפי",c:"טכנולוגיה"},{w:"סלפי",c:"טכנולוגיה"},{w:"האשטאג",c:"טכנולוגיה"},{w:"פודקאסט",c:"טכנולוגיה"},{w:"סטורי",c:"טכנולוגיה"},{w:"לייק",c:"טכנולוגיה"},{w:"מימ",c:"טכנולוגיה"},{w:"סטרימינג",c:"טכנולוגיה"},
+{w:"שבירת קרח",c:"ביטויים"},{w:"חיוך מזויף",c:"ביטויים"},{w:"דקה תשעים",c:"ביטויים"},{w:"לשבור שיא",c:"ביטויים"},{w:"עין הסערה",c:"ביטויים"},{w:"קצה הקרחון",c:"ביטויים"},{w:"לב שבור",c:"ביטויים"},{w:"ראש גדול",c:"ביטויים"},{w:"יד ימין",c:"ביטויים"},{w:"רגל שמאל",c:"ביטויים"},
+{w:"עולם הפוך",c:"ביטויים"},{w:"גשר צר",c:"ביטויים"},{w:"דרך ארוכה",c:"ביטויים"},{w:"סוף טוב",c:"ביטויים"},{w:"סיפור ישן",c:"ביטויים"},{w:"חלום בהקיץ",c:"ביטויים"},{w:"ברכת דרך",c:"ביטויים"},{w:"מסע פנימי",c:"ביטויים"},{w:"קו אדום",c:"ביטויים"},{w:"נקודת אור",c:"ביטויים"}
+];
+
+const catColors={
+  "אנשים":["#ff6b6b","#ee5a24"],
+  "חיות":["#1dd1a1","#10ac84"],
+  "מקומות":["#54a0ff","#5f27cd"],
+  "חפצים":["#feca57","#ff9f43"],
+  "מושגים":["#ff9ff3","#f368e0"],
+  "אוכל":["#ff6348","#ee5a24"],
+  "ספורט":["#48dbfb","#0abde3"],
+  "טכנולוגיה":["#5f27cd","#341f97"],
+  "ביטויים":["#1dd1a1","#48dbfb"]
+};
+
+let deck=[...allWords];
+let currentIndex=-1;
+let shownCount=0;
+let scores=[0,0];
+let activeTeam=0;
+let timerDuration=60;
+let timerRemaining=60;
+let timerInterval=null;
+let timerRunning=false;
+let timerVisible=false;
+let scoresVisible=false;
+
+function shuffle(arr){for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]]}return arr}
+
+shuffle(deck);
+
+function flipCard(){document.getElementById('card').classList.toggle('flipped')}
+
+function nextCard(){
+  const card=document.getElementById('card');
+  card.classList.remove('flipped');
+  currentIndex++;
+  if(currentIndex>=deck.length){currentIndex=0;shuffle(deck)}
+  shownCount++;
+  const item=deck[currentIndex];
+  const cols=catColors[item.c]||["#888","#666"];
+  const front=document.getElementById('cardFront');
+  front.style.background=`linear-gradient(145deg,${cols[0]},${cols[1]})`;
+  document.getElementById('cardWord').textContent=item.w;
+  document.getElementById('cardCat').textContent=item.c;
+  document.getElementById('cardNum').textContent=`${shownCount}/200`;
+  document.getElementById('remaining').textContent=Math.max(0,deck.length-shownCount);
+  document.getElementById('shown').textContent=shownCount;
+  setTimeout(()=>card.classList.add('flipped'),120);
+}
+
+function shuffleAll(){
+  shuffle(deck);currentIndex=-1;shownCount=0;
+  document.getElementById('card').classList.remove('flipped');
+  document.getElementById('remaining').textContent=200;
+  document.getElementById('shown').textContent=0;
+}
+
+function resetGame(){
+  shuffleAll();
+  scores=[0,0];activeTeam=0;
+  document.getElementById('score1').textContent='0';
+  document.getElementById('score2').textContent='0';
+  updateActiveTeam();
+  if(timerInterval){clearInterval(timerInterval);timerInterval=null}
+  timerRunning=false;timerRemaining=timerDuration;
+  updateTimerDisplay();
+  document.getElementById('timerToggle').textContent='▶ התחל';
+}
+
+function changeScore(team,delta){
+  scores[team-1]=Math.max(0,scores[team-1]+delta);
+  document.getElementById('score'+team).textContent=scores[team-1];
+}
+
+function toggleScores(){
+  scoresVisible=!scoresVisible;
+  document.getElementById('scoreSection').style.display=scoresVisible?'flex':'none';
+}
+
+function updateActiveTeam(){
+  document.getElementById('team1box').classList.toggle('active-team',activeTeam===0);
+  document.getElementById('team2box').classList.toggle('active-team',activeTeam===1);
+}
+
+function toggleTimer(){
+  const sec=document.getElementById('timerSection');
+  if(!timerVisible){timerVisible=true;sec.style.display='block';return}
+  if(timerRunning){
+    clearInterval(timerInterval);timerInterval=null;timerRunning=false;
+    document.getElementById('timerToggle').textContent='▶ המשך';
+  }else{
+    timerRunning=true;
+    document.getElementById('timerToggle').textContent='⏸ עצור';
+    timerInterval=setInterval(()=>{
+      timerRemaining--;
+      if(timerRemaining<=0){
+        clearInterval(timerInterval);timerInterval=null;timerRunning=false;
+        timerRemaining=0;
+        document.getElementById('timerToggle').textContent='▶ התחל';
+        activeTeam=1-activeTeam;updateActiveTeam();
+        setTimeout(()=>{timerRemaining=timerDuration;updateTimerDisplay()},2000);
+      }
+      updateTimerDisplay();
+    },1000);
+  }
+}
+
+function setTimerDuration(s){
+  timerDuration=s;timerRemaining=s;
+  if(timerInterval){clearInterval(timerInterval);timerInterval=null;timerRunning=false}
+  document.getElementById('timerToggle').textContent='▶ התחל';
+  updateTimerDisplay();
+  document.querySelectorAll('.timer-btn').forEach(b=>{
+    if(b.id!=='timerToggle') b.classList.remove('active');
+  });
+  event.target.classList.add('active');
+}
+
+function updateTimerDisplay(){
+  const m=Math.floor(timerRemaining/60);
+  const s=timerRemaining%60;
+  const d=document.getElementById('timerDisplay');
+  d.textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  const warn=timerRemaining<=10;
+  d.classList.toggle('warning',warn);
+  const fill=document.getElementById('timerFill');
+  fill.style.width=((timerRemaining/timerDuration)*100)+'%';
+  fill.classList.toggle('warning',warn);
+}
+
+// start with first card
+nextCard();
+</script>
+</body>
+</html>
